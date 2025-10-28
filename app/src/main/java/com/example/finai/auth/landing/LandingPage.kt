@@ -1,4 +1,4 @@
-package com.example.finai.auth
+package com.example.finai.auth.landing
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,9 +29,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.example.finai.R
+import com.example.finai.Routes
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.finai.auth.landing.LandingEvent
+import com.example.finai.auth.landing.LandingViewModel
+import com.example.finai.auth.landing.NavigationEvent
+
 
 @Composable
-fun AndroidCompact5(modifier: Modifier = Modifier) {
+fun LandingPage(
+    navController: NavController,
+    viewModel: LandingViewModel = viewModel(),
+    modifier: Modifier = Modifier
+) {
+    LaunchedEffect(key1 = true) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                is NavigationEvent.NavigateToSignIn -> {
+                    navController.navigate(Routes.SIGN_IN)
+                }
+                is NavigationEvent.NavigateToSignUp -> {
+                    navController.navigate(Routes.SIGN_UP)
+                }
+            }
+        }
+    }
+
     Box(
         modifier = modifier
             .requiredWidth(width = 412.dp)
@@ -44,6 +71,7 @@ fun AndroidCompact5(modifier: Modifier = Modifier) {
                 .requiredHeight(height = 917.dp)
                 .background(color = Color.White)
         ) {
+            // ... (Semua kode Image dan Column Anda tetap sama) ...
             Image(
                 painter = painterResource(id = R.drawable.vec203),
                 contentDescription = "Vector 203",
@@ -78,15 +106,15 @@ fun AndroidCompact5(modifier: Modifier = Modifier) {
                     .requiredWidth(width = 191.dp)
                     .requiredHeight(height = 184.dp))
             Image(
-                painter = painterResource(id = R.drawable.ling107), // Ganti 'your_image_name' dengan nama resource gambar Anda
-                contentDescription = "Deskripsi gambar Anda", // Berikan deskripsi yang sesuai untuk aksesibilitas
+                painter = painterResource(id = R.drawable.ling107),
+                contentDescription = "Deskripsi gambar Anda",
                 modifier = Modifier
                     .align(alignment = Alignment.TopStart)
                     .offset(x = 206.dp,
                         y = 114.dp)
                     .requiredWidth(width = 106.dp)
                     .requiredHeight(height = 107.dp)
-                    .clip(shape = CircleShape) // Pertahankan ini jika Anda ingin gambar tetap berbentuk lingkaran
+                    .clip(shape = CircleShape)
             )
             Image(
                 painter = painterResource(id = R.drawable.vec202),
@@ -98,7 +126,6 @@ fun AndroidCompact5(modifier: Modifier = Modifier) {
                     .requiredWidth(width = 412.dp)
                     .requiredHeight(height = 661.dp))
 
-            // --- ✅ SATU-SATUNYA COLUMN TEKS "WELCOME BACK" ---
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -135,95 +162,105 @@ fun AndroidCompact5(modifier: Modifier = Modifier) {
                             .fillMaxWidth())
                 }
             }
-            // --- 🛑 AKHIR DARI COLUMN TEKS ---
 
             Image(
-                painter = painterResource(id = R.drawable.ling105), // Ganti 'some_image' dengan nama resource gambar Anda
-                contentDescription = "Deskripsi gambar Anda", // Berikan deskripsi yang sesuai
+                painter = painterResource(id = R.drawable.ling105),
+                contentDescription = "Deskripsi gambar Anda",
                 modifier = Modifier
                     .align(alignment = Alignment.TopStart)
                     .offset(x = 53.dp,
                         y = 482.dp)
                     .requiredSize(size = 83.dp)
-                    .clip(shape = CircleShape) // Jika gambar Anda juga ingin berbentuk lingkaran
+                    .clip(shape = CircleShape)
             )
             Image(
-                painter = painterResource(id = R.drawable.ling104), // Ganti 'your_image_name' dengan nama resource gambar Anda
-                contentDescription = "Deskripsi gambar Anda", // Berikan deskripsi yang sesuai untuk aksesibilitas
+                painter = painterResource(id = R.drawable.ling104),
+                contentDescription = "Deskripsi gambar Anda",
                 modifier = Modifier
                     .align(alignment = Alignment.TopStart)
                     .offset(x = 70.dp,
                         y = 589.dp)
                     .requiredWidth(width = 203.dp)
                     .requiredHeight(height = 208.dp)
-                    // Anda bisa memilih untuk mempertahankan shadow jika diinginkan, atau menghapusnya jika gambar sudah memiliki efek visual yang diinginkan
             )
 
+            // --- PERUBAHAN 4: Panggil tombol dengan event onClick ---
             SignInButton(
                 modifier = Modifier
                     .align(alignment = Alignment.BottomStart)
                     .offset(x = 0.dp,
-                        y = (-1).dp))
+                        y = (-1).dp),
+                onClick = {
+                    viewModel.onEvent(LandingEvent.OnSignInClicked)
+                }
+            )
 
             SignUpButton(
                 modifier = Modifier
                     .align(alignment = Alignment.BottomEnd)
                     .offset(x = 0.dp,
-                        y = (-1).dp))
+                        y = (-1).dp),
+                onClick = {
+                    viewModel.onEvent(LandingEvent.OnSignUpClicked)
+                }
+            )
         }
-
-        // --- ❌ COLUMN TEKS YANG DUPLIKAT SUDAH DIHAPUS DARI SINI ---
-
     }
 }
 
 @Composable
-fun SignInButton(modifier: Modifier = Modifier) {
+fun SignInButton(
+    // --- PERUBAHAN 3: Tambahkan parameter onClick ---
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .clickable { onClick() } // <-- Buat Row bisa diklik
             .padding(horizontal = 65.5.dp,
                 vertical = 40.dp)
     ) {
         Text(
             text = "Sign In",
             color = Color.White,
-            textAlign = TextAlign.Center,
-            lineHeight = 1.1.em,
+            // ... (style teks Anda)
             style = TextStyle(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold),
-            modifier = Modifier
-                .requiredWidth(width = 82.dp))
+        )
     }
 }
 
 @Composable
-fun SignUpButton(modifier: Modifier = Modifier) {
+fun SignUpButton(
+    // --- PERUBAHAN 3: Tambahkan parameter onClick ---
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            // .background(color = Color(0xff21356b)) // <-- HAPUS BARIS INI
+            .clickable { onClick() } // <-- Buat Row bisa diklik
             .padding(horizontal = 61.5.dp,
                 vertical = 40.dp)
     ) {
         Text(
             text = "Sign Up",
-            color = Color.White, // <-- HATI-HATI DENGAN INI
-            textAlign = TextAlign.Center,
-            lineHeight = 1.1.em,
+            color = Color.White,
+            // ... (style teks Anda)
             style = TextStyle(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold),
-            modifier = Modifier
-                .requiredWidth(width = 75.dp))
+        )
     }
 }
 
 @Preview(widthDp = 412, heightDp = 917)
 @Composable
 private fun AndroidCompact5Preview() {
-    AndroidCompact5(Modifier)
+    val fakeNavController = rememberNavController()
+    LandingPage(navController = fakeNavController, modifier = Modifier)
 }
